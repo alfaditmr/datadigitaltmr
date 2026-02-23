@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Demo Arsip Digital TMR (Lokal)</title>
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --border:#e5e7eb; --accent:#2563eb; --danger:#ef4444; --ok:#16a34a; --warn:#f59e0b;
+      --shadow: 0 8px 25px rgba(2,6,23,.08);
+      --radius: 16px;
+    }
+    body{ margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--text); }
+    .wrap{ max-width:1100px; margin:24px auto; padding:0 14px; }
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+    .brand{ display:flex; flex-direction:column; }
+    .brand b{ font-size:18px; }
+    .brand small{ color:var(--muted); }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); }
+    .grid{ display:grid; grid-template-columns: 1fr; gap:14px; }
+    @media(min-width: 900px){ .grid{ grid-template-columns: 360px 1fr; } }
+    .p{ padding:14px; }
+    .row{ display:flex; gap:10px; align-items:center; }
+    input, select, button, textarea{
+      width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px;
+      border:1px solid var(--border); background:#fff; font-size:14px;
+    }
+    button{ cursor:pointer; border:none; background:var(--accent); color:#fff; font-weight:600; }
+    button.secondary{ background:#0f172a; }
+    button.ghost{ background:#fff; color:var(--text); border:1px solid var(--border); }
+    button.danger{ background:var(--danger); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .muted{ color:var(--muted); }
+    .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; border:1px solid var(--border); background:#fff; }
+    .pill.ok{ border-color:rgba(22,163,74,.25); background:rgba(22,163,74,.08); color:var(--ok); }
+    .pill.warn{ border-color:rgba(245,158,11,.25); background:rgba(245,158,11,.08); color:var(--warn); }
+    .pill.bad{ border-color:rgba(239,68,68,.25); background:rgba(239,68,68,.08); color:var(--danger); }
+    .sectionTitle{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 8px; }
+    .hidden{ display:none !important; }
+    .table{ width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid var(--border); border-radius:14px; background:#fff; }
+    .table th, .table td{ padding:10px 10px; border-bottom:1px solid var(--border); font-size:14px; vertical-align:top; }
+    .table th{ text-align:left; background:#f3f4f6; color:#111827; font-weight:700; }
+    .table tr:last-child td{ border-bottom:none; }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .tiny{ font-size:12px; }
+    .sep{ height:1px; background:var(--border); margin:12px 0; }
+    .hint{ background:#f1f5ff; border:1px solid #dbeafe; color:#1e3a8a; padding:10px 12px; border-radius:14px; }
+    .warnbox{ background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; padding:10px 12px; border-radius:14px; }
+    .goodbox{ background:#ecfdf5; border:1px solid #bbf7d0; color:#14532d; padding:10px 12px; border-radius:14px; }
+    .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      border:1px solid var(--border); background:#fff; border-radius:10px; padding:2px 6px; font-size:12px;
+    }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <b>Demo Arsip Digital TMR</b>
+        <small class="muted">Mode Lokal (localStorage) • Nanti gampang disambung ke Firebase + Drive</small>
+      </div>
+      <div class="row" style="width:auto">
+        <span id="who" class="pill hidden"></span>
+        <button id="btnLogout" class="ghost hidden" style="width:auto">Logout</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT -->
+      <div class="card p">
+        <div id="loginBox">
+          <h3 style="margin:0 0 6px">Login</h3>
+          <div class="hint tiny">
+            Demo lokal: akun sudah disiapkan otomatis.<br/>
+            <b>User</b>: <span class="kbd">NIP user</span> + <span class="kbd">password</span><br/>
+            <b>Admin</b>: <span class="kbd">199901012000000001</span> + <span class="kbd">admin123</span>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <label class="tiny muted">NIP (18 digit)</label>
+          <input id="nip" placeholder="contoh: 197xxxxxxxxxxxxxxx" inputmode="numeric"/>
+
+          <div style="height:10px"></div>
+
+          <label class="tiny muted">Password</label>
+          <input id="pass" type="password" placeholder="Password"/>
+
+          <div style="height:10px"></div>
+
+          <button id="btnLogin">Masuk</button>
+
+          <div style="height:10px"></div>
+
+          <button id="btnForgot" class="ghost">Lupa Password (Demo)</button>
+
+          <div style="height:10px"></div>
+          <div id="loginMsg" class="tiny muted"></div>
+
+          <div class="sep"></div>
+          <div class="warnbox tiny">
+            <b>Catatan Demo:</b> Upload disimpan sebagai file lokal (base64) di browser. Untuk produksi nanti, upload dialihkan ke Google Drive dan metadata ke Firebase.
+          </div>
+
+          <div style="height:10px"></div>
+          <button id="btnResetDemo" class="danger">Reset Data Demo (Hapus local)</button>
+        </div>
+
+        <div id="profileBox" class="hidden">
+          <div class="sectionTitle">
+            <h3 style="margin:0">Akun</h3>
+          </div>
+          <div id="profileInfo" class="tiny muted" style="white-space:pre-line"></div>
+
+          <div class="sep"></div>
+
+          <h4 style="margin:0 0 8px">Ganti Password (Lokal)</h4>
+          <label class="tiny muted">Password baru</label>
+          <input id="newPass" type="password" placeholder="min 6 karakter"/>
+          <div style="height:10px"></div>
+          <button id="btnChangePass" class="secondary">Ubah Password</button>
+          <div style="height:10px"></div>
+          <div id="profileMsg" class="tiny muted"></div>
+
+          <div class="sep"></div>
+          <div class="goodbox tiny">
+            <b>Siap produksi:</b> UI ini tinggal ganti sumber data dari localStorage ke Firebase RTDB + gateway Drive.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="card p">
+        <div id="welcomeBox">
+          <div class="hint">
+            <b>Petunjuk:</b> Login untuk akses demo. Untuk cepat mencoba, pakai akun admin atau salah satu akun user demo.
+          </div>
+          <div style="height:10px"></div>
+          <div class="tiny muted">Akun user demo tersedia otomatis. Admin bisa melihat semuanya.</div>
+        </div>
+
+        <!-- USER DASH -->
+        <div id="userDash" class="hidden">
+          <div class="sectionTitle">
+            <h3 style="margin:0">Dokumen Saya</h3>
+            <span id="userProgress" class="pill"></span>
+          </div>
+          <div class="muted tiny" id="userSub"></div>
+          <div style="height:10px"></div>
+
+          <table class="table" id="userTable">
+            <thead>
+              <tr>
+                <th style="width:48px">No</th>
+                <th>Dokumen</th>
+                <th style="width:130px">Status</th>
+                <th style="width:310px">Aksi</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <!-- ADMIN DASH -->
+        <div id="adminDash" class="hidden">
+          <div class="sectionTitle">
+            <h3 style="margin:0">Dashboard Admin</h3>
+            <span class="pill">Cek keseluruhan pegawai</span>
+          </div>
+
+          <div class="row">
+            <input id="q" placeholder="Cari NIP / Nama..." />
+            <button id="btnRefresh" style="width:auto">Refresh</button>
+          </div>
+
+          <div style="height:10px"></div>
+          <table class="table" id="adminTable">
+            <thead>
+              <tr>
+                <th style="width:170px">NIP</th>
+                <th>Nama</th>
+                <th style="width:160px">Unit</th>
+                <th style="width:140px">Kelengkapan</th>
+                <th style="width:140px">Aksi</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          <div class="sep"></div>
+
+          <div id="adminDetail" class="hidden">
+            <div class="sectionTitle">
+              <h3 style="margin:0" id="detailTitle">Detail Pegawai</h3>
+              <button id="btnCloseDetail" class="ghost" style="width:auto">Tutup</button>
+            </div>
+
+            <table class="table" id="detailTable">
+              <thead>
+                <tr>
+                  <th style="width:48px">No</th>
+                  <th>Dokumen</th>
+                  <th style="width:130px">Status</th>
+                  <th style="width:360px">Aksi</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+
+            <div style="height:10px"></div>
+            <div class="muted tiny">
+              Admin bisa set status <b>REVISI</b> + catatan, atau set <b>ADA</b>.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
